@@ -2,9 +2,8 @@
 
 This is the Git repo of the official Docker image for DeGirum AI Client.
 
-The image is based on [python:3.8-slim](https://hub.docker.com/_/python) image and contains [DeGirum PySDK](https://degirum.github.io/simple/degirum/index.html) 
-and [JupyterLab](https://jupyter.org/install) packages.
-All additional Python packages to be installed at the image creation process are listed in [requirements.txt](./requirements.txt).
+The image is based on [python:3.8-slim](https://hub.docker.com/_/python) image and contains [DeGirum PySDK](https://degirum.github.io/simple/degirum/index.html) and [JupyterLab](https://jupyter.org/install) packages.
+All additional Python packages to be installed at the image creation process are listed in [requirements.txt](https://github.com/DeGirum/docker-degirum/blob/master/aiclient/requirements.txt).
 
 Once the Docker container is started, JupyterLab accepts client connections on port **8888**.
 `JUPYTER_TOKEN` environment variable is used to define JupyterLab token value.
