@@ -21,6 +21,8 @@ To **start** the Docker container, execute the following command:
 
 Here `/my/model/zoo/dir` is the local path on the docker host computer to the model zoo directory to be served by AI server.
 
+`--privileged` parameter is required so the PySDK server can have write access to `/sys/bus/pci` directories.
+
 You connect to the AI server by providing the IP address or the host name of the docker host computer when connecting the the model zoo:
 
     import degirum as dg
