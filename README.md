@@ -6,5 +6,5 @@ The changelog for corresponding PySDK releases is available at [DeGirum PySDK Re
 
 [AI Server Docker Readme](./aiserver/README.md)
 
-[AI Client Docker Readme](./aicleint/README.md)
+[AI Client Docker Readme](./aiclient/README.md)
 
