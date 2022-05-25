@@ -2,7 +2,7 @@
 
 This is the Git repo of the official Docker image for DeGirum AI Server.
 
-The image is based on [python:3.8-slim](https://hub.docker.com/_/python) image and contains [DeGirum PySDK](https://degirum.github.io/simple/degirum/index.html) installation.
+The image is based on [python:3.9-slim](https://hub.docker.com/_/python) image and contains [DeGirum PySDK](https://degirum.github.io/simple/degirum/index.html) installation.
 Once the docker container is started, DeGirum AI server is launched and accepts client connections on port **8778**.
 The image does not contain any AI models. The model zoo directory must be supplied as the [bind mount](https://docs.docker.com/storage/bind-mounts/).
 
