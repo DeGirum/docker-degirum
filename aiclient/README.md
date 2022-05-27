@@ -14,11 +14,14 @@ Once the Docker container is started, JupyterLab accepts client connections on p
 Pre-requisites: [Docker Desktop](https://www.docker.com/get-started/) is installed on the **docker host**: the computer where you want 
 to build or run the docker container.
 
-To **build** the Docker container image, execute the following command:
-
+DeGirum provides pre-built [Docker container image on DockerHub](https://hub.docker.com/r/degirum/aiclient), so you can run it right away.
+But if you want to **build** the Docker container image yourself, execute the following commands:
+    
+    git clone https://github.com/DeGirum/docker-degirum
+    cd docker-degirum/aiclient
     docker build . -t degirum/aiclient:latest
 
-To **start** the Docker container, execute the following command:
+To **run** the Docker container (either you build it yourself or you download it from DockerHub), execute the following command:
 
     docker run -it --rm -p 8080:8888 -v /my/work/dir:/degirum -e JUPYTER_TOKEN="token" degirum/aiclient:latest
 
