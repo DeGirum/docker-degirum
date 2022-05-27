@@ -11,11 +11,14 @@ The image does not contain any AI models. The model zoo directory must be suppli
 Pre-requisites: [Docker Desktop](https://www.docker.com/get-started/) is installed on the **docker host**: the computer where you want 
 to build or run the docker container.
 
-To **build** the Docker container image, execute the following command:
-
+DeGirum provides pre-built [Docker container image on DockerHub](https://hub.docker.com/r/degirum/aiserver), so you can run it right away.
+But if you want to **build** the Docker container image yourself, execute the following commands:
+    
+    git clone https://github.com/DeGirum/docker-degirum
+    cd docker-degirum/aiserver
     docker build . -t degirum/aiserver:latest
 
-To **start** the Docker container, execute the following command:
+To **run** the Docker container (either you build it yourself or you download it from DockerHub), execute the following command:
 
     docker run -d -p 8778:8778 -v /my/model/zoo/dir:/zoo --privileged degirum/aiserver:latest
 
