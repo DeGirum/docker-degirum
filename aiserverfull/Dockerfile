@@ -7,7 +7,7 @@ WORKDIR /degirum
 
 # install prerequisites
 RUN apt-get update \
-    && apt-get install -y curl gpg
+    && apt-get install -y curl gpg gcc
 
 # install edgetpu runtime
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
