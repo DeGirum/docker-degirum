@@ -7,7 +7,7 @@ WORKDIR /degirum
 
 # install prerequisites
 RUN apt-get update \
-    && apt-get install -y curl gpg gcc
+    && apt-get install -y curl gpg
 
 # install edgetpu runtime
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
@@ -18,6 +18,7 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
 
 # install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
+RUN pip install --upgrade pip
 RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
         pip install degirum --extra-index-url https://DeGirum.github.io/simple ; \
     else \
