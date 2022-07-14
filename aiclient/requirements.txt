@@ -1,2 +1,3 @@
 jupyterlab
 opencv-python-headless
+pycocotools
