@@ -6,8 +6,9 @@ ARG DG_CUSTOM_WHEEL
 WORKDIR /degirum
 
 # install prerequisites
-RUN apt-get update && apt-get install -y \
-  git libusb-dev
+RUN apt-get update \
+    && apt-get install -y git libusb-1.0-0-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/DeGirum/PySDKExamples.git
 
