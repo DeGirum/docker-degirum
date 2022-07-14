@@ -7,7 +7,7 @@ WORKDIR /degirum
 
 # install prerequisites
 RUN apt-get update && apt-get install -y \
-  git
+  git libusb-dev
 
 RUN git clone https://github.com/DeGirum/PySDKExamples.git
 
