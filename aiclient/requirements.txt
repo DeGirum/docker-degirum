@@ -1,1 +1,2 @@
 jupyterlab
+opencv-python-headless
