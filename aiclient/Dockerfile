@@ -7,7 +7,7 @@ WORKDIR /degirum
 COPY requirements.txt ${DG_CUSTOM_WHEEL} ./
 
 RUN apt-get update \
-    && apt-get install -y git gcc libusb-1.0-0-dev \
+    && apt-get install -y git gcc libusb-1.0-0-dev python3-opencv \
     && rm -rf /var/lib/apt/lists/* \
     && git clone https://github.com/DeGirum/PySDKExamples.git \
     && pip install --upgrade pip \
