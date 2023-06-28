@@ -11,7 +11,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --upgrade pip \
     && if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
-        pip install degirum \
+        pip install degirum ; \
     else \
         pip install ${DG_CUSTOM_WHEEL} ; \
     fi \
