@@ -8,28 +8,29 @@ The image does not contain any AI models. The model zoo directory must be suppli
 
 ## How to Build and Use Official AI Server Docker Image
 
-Pre-requisites: [Docker Desktop](https://www.docker.com/get-started/) is installed on the **docker host**: the computer where you want 
+Pre-requisites: [Docker Desktop](https://www.docker.com/get-started/) or [Docker Engine](https://docs.docker.com/engine/install/) is installed on the **docker host**: the computer where you want 
 to build or run the docker container.
 
 DeGirum provides pre-built [Docker container image on DockerHub](https://hub.docker.com/r/degirum/aiserver), so you can run it right away.
-But if you want to **build** the Docker container image yourself, execute the following commands:
-    
-    git clone https://github.com/DeGirum/docker-degirum
-    cd docker-degirum/aiserver
-    docker build . -t degirum/aiserver:latest
 
-To **run** the Docker container (either you build it yourself or you download it from DockerHub), execute the following command:
+To **run** the Docker container (either the one you built yourself (see below) or the one from DockerHub), execute the following command:
 
     docker run -d -p 8778:8778 -v /my/model/zoo/dir:/zoo --privileged degirum/aiserver:latest
 
-Here `/my/model/zoo/dir` is the local path on the docker host computer to the model zoo directory to be served by AI server.
+Here `/my/model/zoo/dir` is the local path on the docker host computer to the model zoo directory to be served by AI server. This parameter can be omitted. In this case, no models will be served from the local zoo, but models from cloud zoos can still be served.
 
-`--privileged` parameter is required so the PySDK server can have write access to `/sys/bus/pci` directories.
+The `--privileged` parameter is required so the PySDK server can have write access to `/sys/bus/pci` directories.
 
 You connect to the AI server by providing the IP address or the host name of the docker host computer when connecting the the model zoo:
 
     import degirum as dg
     zoo = dg.connect_model_zoo(docker_host_IP)
+
+If you want to **build** the Docker container image yourself, execute the following commands:
+    
+    git clone https://github.com/DeGirum/docker-degirum
+    cd docker-degirum/aiserver
+    docker build . -t degirum/aiserver:latest
 
 ## How to Build and Use AI Server Docker Image with Embedded Zoo
 

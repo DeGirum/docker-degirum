@@ -11,17 +11,12 @@ Once the Docker container is started, JupyterLab accepts client connections on p
 
 ## How to Build and Use Official AI Client Docker Image
 
-Pre-requisites: [Docker Desktop](https://www.docker.com/get-started/) is installed on the **docker host**: the computer where you want 
+Pre-requisites: [Docker Desktop](https://www.docker.com/get-started/) or [Docker Engine](https://docs.docker.com/engine/install/) is installed on the **docker host**: the computer where you want 
 to build or run the docker container.
 
 DeGirum provides pre-built [Docker container image on DockerHub](https://hub.docker.com/r/degirum/aiclient), so you can run it right away.
-But if you want to **build** the Docker container image yourself, execute the following commands:
-    
-    git clone https://github.com/DeGirum/docker-degirum
-    cd docker-degirum/aiclient
-    docker build . -t degirum/aiclient:latest
 
-To **run** the Docker container (either you build it yourself or you download it from DockerHub), execute the following command:
+To **run** the Docker container (either the one you built yourself (see below) or the one from DockerHub), execute the following command:
 
     docker run -it --rm -p 8080:8888 -v /my/work/dir:/degirum -e JUPYTER_TOKEN="token" degirum/aiclient:latest
 
@@ -33,3 +28,9 @@ You can open http://docker_host_IP:8080 URL in your browser to access JupyterLab
 The `"token"` parameter serves as your login credentials to JupyterLab.
 
 The `/my/work/dir` parameter is the docker host computer local directory, which is used as a JupyterLab root directory.
+
+If you want to **build** the Docker container image yourself instead, execute the following commands:
+
+    git clone https://github.com/DeGirum/docker-degirum
+    cd docker-degirum/aiclient
+    docker build . -t degirum/aiclient:latest

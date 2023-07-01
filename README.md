@@ -10,3 +10,5 @@ See the following readmes on how to build and use the Docker images:
 [AI Server Docker Readme](./aiserver/README.md)
 
 [AI Client Docker Readme](./aiclient/README.md)
+
+[AI Server Docker for Jetson Readme](./aiservertrt/README.md)
