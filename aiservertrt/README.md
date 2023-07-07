@@ -1,6 +1,6 @@
 # About This Repo
 
-This is the repository of the official Docker image for the DeGirum AI Server. This Docker image is designed to run on NVIDIA Jetson systems and contains upport for GPU inference via Tensor RT.
+This is the repository of the official Docker image for the DeGirum AI Server. This Docker image is designed to run on NVIDIA Jetson systems and contains support for GPU inference via Tensor RT.
 
 The image is based on the [NVIDIA L4T TensorRT](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-tensorrt) image and contains [DeGirum PySDK](https://degirum.github.io/simple/degirum/index.html).
 Once the Docker container is started, the DeGirum AI server is launched and starts accepting client connections on port **8778**.
