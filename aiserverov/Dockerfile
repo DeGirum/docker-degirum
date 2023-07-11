@@ -1,4 +1,4 @@
-FROM openvino/ubuntu20_runtime:latest
+FROM openvino/ubuntu20_runtime:2023.0.0
 
 ARG DG_CUSTOM_WHEEL
 
@@ -16,8 +16,6 @@ RUN apt-get update \
         pip install ${DG_CUSTOM_WHEEL} ; \
     fi \
     && mkdir -p /zoo
-
-USER openvino
 
 # run degirum AI server
 CMD [ "python3", "-m", "degirum.server", "--zoo", "/zoo" ]
