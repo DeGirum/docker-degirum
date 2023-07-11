@@ -3,7 +3,7 @@
 This is the Git repo of the official DeGirum Docker images for [DeGirum AI server](https://hub.docker.com/r/degirum/aiserver)
 and [PySDK AI client](https://hub.docker.com/r/degirum/aiclient).
 
-The changelog for corresponding PySDK releases is available at [DeGirum PySDK Release Notes page](https://degirum.github.io/releasenotes/index.html).
+The changelog for corresponding PySDK releases is available at [DeGirum PySDK page](https://docs.degirum.com/content/pysdk/).
 
 See the following readmes on how to build and use the Docker images:
 

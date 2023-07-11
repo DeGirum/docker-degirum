@@ -2,7 +2,7 @@
 
 This is the repository of the official Docker image for the DeGirum AI Server running the OpenVINO Runtime. This Docker image is designed to run on systems with Ubuntu 20.04 and facilitates CPU inference via OpenVINO.
 
-The image is based on the [OpenVINO Docker Image](https://hub.docker.com/r/openvino/ubuntu20_runtime) and includes the [DeGirum PySDK](https://degirum.github.io/simple/degirum/index.html).
+The image is based on the [OpenVINO Docker Image](https://hub.docker.com/r/openvino/ubuntu20_runtime) and includes the [DeGirum PySDK](https://docs.degirum.com/content/pysdk/).
 Once the Docker container is initiated, the DeGirum AI server commences and begins to accept client connections on port **8778**.
 The image doesn't contain any AI models. The model zoo directory must be provided as the [bind mount](https://docs.docker.com/storage/bind-mounts/).
 

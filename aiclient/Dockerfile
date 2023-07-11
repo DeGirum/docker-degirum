@@ -13,7 +13,7 @@ RUN apt-get update \
     && pip install --upgrade pip \
     && pip install -r requirements.txt \
     && if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
-        pip install degirum --extra-index-url https://DeGirum.github.io/simple ; \
+        pip install degirum ; \
     else \
         pip install ${DG_CUSTOM_WHEEL} ; \
     fi
