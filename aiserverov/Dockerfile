@@ -1,4 +1,4 @@
-FROM openvino/ubuntu22_runtime:2023.0.0
+FROM openvino/ubuntu22_runtime:2023.3.0
 
 ARG DG_CUSTOM_WHEEL
 

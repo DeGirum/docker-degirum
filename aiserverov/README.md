@@ -6,7 +6,7 @@ The image is based on the [OpenVINO Docker Image](https://hub.docker.com/r/openv
 Once the Docker container is initiated, the DeGirum AI server commences and begins to accept client connections on port **8778**.
 The image doesn't contain any AI models. The model zoo directory must be provided as the [bind mount](https://docs.docker.com/storage/bind-mounts/).
 
-### NOTE: This Docker image uses OpenVINO Runtime version 2023.0.0
+### NOTE: This Docker image uses OpenVINO Runtime version 2023.3.0
 
 ## How to Build and Use Official AI Server Docker Image
 
