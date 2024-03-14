@@ -1,7 +1,15 @@
+#
+# Dockerfile for DeGirum AI server with TensorRT runtime
+#
+# Copyright DeGirum Corp 2024
+#
+# This software contains source code provided by NVIDIA Corporation.
+#
+
 FROM nvcr.io/nvidia/l4t-tensorrt:r8.5.2-runtime
 
+EXPOSE 8778-8779
 ARG DG_CUSTOM_WHEEL
-
 WORKDIR /degirum
 
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
@@ -18,7 +26,4 @@ RUN apt-get update \
     && mkdir -p /zoo
 
 # run degirum AI server
-CMD [ "python", "-m", "degirum.server", "--zoo", "/zoo" ]
-EXPOSE 8778
-
-# This software contains source code provided by NVIDIA Corporation.
+CMD [ "python", "-m", "degirum.server", "--zoo", "/zoo", "--protocol", "both" ]

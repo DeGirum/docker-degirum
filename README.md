@@ -11,6 +11,4 @@ See the following readmes on how to build and use the Docker images:
 
 [AI Client Docker Readme](./aiclient/README.md)
 
-[AI Server Docker for Jetson Readme](./aiservertrt/README.md)
-
-[AI Server Docker for OpenVINO Readme](./aiserverov/README.md)
+[AI Server Docker for Nvidia Devices Readme](./aiservertrt/README.md)
