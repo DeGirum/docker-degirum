@@ -4,11 +4,16 @@
 # Copyright DeGirum Corp 2024
 #
 
-FROM openvino/ubuntu22_runtime:2023.3.0
-# Uses Python 3.10
+# PySDK wheel file name: must be Python 3.10 PySDK wheel
+ARG DG_CUSTOM_WHEEL
+
+# Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
+ARG BASE_IMAGE
+
+FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2023.3.0}
 
 EXPOSE 8778-8779
-ARG DG_CUSTOM_WHEEL
+
 WORKDIR /degirum
 USER root
 
@@ -25,10 +30,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gpg
 
 # Install ONNX runtime
-RUN curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-linux-x64-1.15.1.tgz \
-    && tar -xzf onnxruntime-linux-x64-1.15.1.tgz \
-    && mv onnxruntime-linux-x64-1.15.1 /usr/local \
-    && rm onnxruntime-linux-x64-1.15.1.tgz
+RUN \
+    if [ -z "${BASE_IMAGE}" ] ; then \
+        arch_suff=x64 ; \
+    else \
+        arch_suff=aarch64 ; \
+    fi \
+    && curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-linux-$arch_suff-1.15.1.tgz \
+    && tar -xzf onnxruntime-linux-$arch_suff-1.15.1.tgz \
+    && mv onnxruntime-linux-$arch_suff-1.15.1 /usr/local \
+    && rm onnxruntime-linux-$arch_suff-1.15.1.tgz
 
 # Install Coral Edge TPU drivers and runtime
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
