@@ -4,16 +4,14 @@
 # Copyright DeGirum Corp 2024
 #
 
-# PySDK wheel file name: must be Python 3.10 PySDK wheel
-ARG DG_CUSTOM_WHEEL
-
 # Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
 ARG BASE_IMAGE
-
 FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2023.3.0}
 
-EXPOSE 8778-8779
+# PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
+ARG DG_CUSTOM_WHEEL
 
+EXPOSE 8778-8779
 WORKDIR /degirum
 USER root
 
