@@ -25,7 +25,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     gpg-agent \
-    gpg
+    gpg \
+    libgl1 \
+    libglib2.0-0
 
 # Install ONNX runtime
 RUN \
