@@ -26,7 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gpg-agent \
     gpg \
-    libgl1
+    libgl1 \
+    libglib2.0-0
 
 # Install ONNX runtime
 RUN \
