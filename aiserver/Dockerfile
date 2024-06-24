@@ -52,22 +52,16 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && apt-get install -y libedgetpu-dev
 
 # Install RKNN Runtime. Only on aarch64
-RUN set -x && \
-    echo "BASE_IMAGE is: ${BASE_IMAGE}" && \
+RUN \
     if [ -z "${BASE_IMAGE}" ] ; then \
-        echo "BASE_IMAGE is not set, this is not an aarch64 system."; \
+        echo "BASE_IMAGE is not set, skipping RKNN Runtime installation."; \
     else \
-        echo "Installing git" && \
         apt update && apt install -y git && \
-        echo "Cloning ezrknn-toolkit2 repository" && \
         git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
         cd ezrknn-toolkit2 && \
-        echo "Checking out specific commit" && \
         git checkout 99db9e5b950ccc7e0d1ee20a16b92f7d8b6e60e6 && \
-        echo "Copying librknnrt.so to /usr/lib/" && \
         cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ && \
         cd .. && \
-        echo "Removing git and cleaning up" && \
         apt remove -y git && \
         rm -rf ezrknn-toolkit2; \
     fi
