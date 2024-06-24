@@ -6,10 +6,14 @@
 
 # Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
 ARG BASE_IMAGE
+# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2023.3.0 will be used
 FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2023.3.0}
-
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
+
+# After every FROM statement, all the ARGs get collected and are no longer available
+# Docker ARG variables need to be redefined in each stage of the Dockerfile if they are used after a FROM instruction.
+ARG BASE_IMAGE
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -48,14 +52,23 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && apt-get install -y libedgetpu-dev
 
 # Install RKNN Runtime. Only on aarch64
-RUN \
-    if [ -n "${BASE_IMAGE}" ]; then \
+RUN set -x && \
+    echo "BASE_IMAGE is: ${BASE_IMAGE}" && \
+    if [ -z "${BASE_IMAGE}" ] ; then \
+        echo "BASE_IMAGE is not set, this is not an aarch64 system."; \
+    else \
+        echo "Installing git" && \
+        apt update && apt install -y git && \
+        echo "Cloning ezrknn-toolkit2 repository" && \
         git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
         cd ezrknn-toolkit2 && \
+        echo "Checking out specific commit" && \
         git checkout 99db9e5b950ccc7e0d1ee20a16b92f7d8b6e60e6 && \
+        echo "Copying librknnrt.so to /usr/lib/" && \
         cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ && \
-        cp ./rknpu2/runtime/Linux/librknn_api/include/* /usr/local/include && \
         cd .. && \
+        echo "Removing git and cleaning up" && \
+        apt remove -y git && \
         rm -rf ezrknn-toolkit2; \
     fi
 
