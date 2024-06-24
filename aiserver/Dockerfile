@@ -48,14 +48,15 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && apt-get install -y libedgetpu-dev
 
 # Install RKNN Runtime. Only on aarch64
-RUN if [ -n "${BASE_IMAGE}" ] ; then \
-    git clone https://github.com/Pelochus/ezrknn-toolkit2 \
-    && cd ezrknn-toolkit2 \
-    && git checkout 99db9e5b950ccc7e0d1ee20a16b92f7d8b6e60e6 \
-    && cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ \
-    && cp ./rknpu2/runtime/Linux/librknn_api/include/* /usr/local/include \
-    && cd .. \
-    && rm -rf ezrknn-toolkit2 \
+RUN \
+    if [ -n "${BASE_IMAGE}" ]; then \
+        git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
+        cd ezrknn-toolkit2 && \
+        git checkout 99db9e5b950ccc7e0d1ee20a16b92f7d8b6e60e6 && \
+        cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ && \
+        cp ./rknpu2/runtime/Linux/librknn_api/include/* /usr/local/include && \
+        cd .. && \
+        rm -rf ezrknn-toolkit2; \
     fi
 
 # Install PySDK
