@@ -7,6 +7,7 @@ The image contains [DeGirum PySDK](https://docs.degirum.com/content/pysdk/) inst
 - Intel&reg; OpenVINO&trade; runtime for CPU, GPU, and NPU devices
 - Google TensorFlow Lite runtime for CPU and Coral Edge TPU devices
 - Microsoft&reg; ONNX runtime for CPU
+- Rockchip RKNN Runtime for RKNPU devices
 
 Once the docker container is started, DeGirum AI server is launched and accepts client connections on port **8778**
 using DeGirum proprietary protocol, and on port **8779** using HTTP/WebSockets protocol.
