@@ -66,6 +66,29 @@ RUN \
         rm -rf ezrknn-toolkit2; \
     fi
 
+# NPU Driver installation
+# Only performed on TARGETARCH=amd64
+RUN if [ -z "${BASE_IMAGE}" ] ; then \
+    echo "Base Image not set, so x86_64 system, starting NPU driver installation." >> /buildLog.txt; \
+    apt update && apt install -y wget udev && \
+    wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
+    wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
+    wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb; \
+    apt update && apt install -y libtbb12; \
+    dpkg -i intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt-get install -f; \
+    dpkg -i intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt-get install -f; \
+    dpkg -i intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt-get install -f; \
+    if dpkg -l | grep -q level-zero; then \
+        echo "level-zero already installed." >> /buildLog.txt; \
+    else \
+        wget https://github.com/oneapi-src/level-zero/releases/download/v1.17.6/level-zero_1.17.6+u22.04_amd64.deb && \
+        wget https://github.com/oneapi-src/level-zero/releases/download/v1.17.6/level-zero-devel_1.17.6+u22.04_amd64.deb && \
+        dpkg -i level-zero*.deb && \
+        echo "Fetched and installed level-zero from GitHub." >> /buildLog.txt; \
+    fi; \
+else echo "BASE_IMAGE is not set, skipping NPU Drvier installation." >> /buildLog.txt; fi
+
+
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
 RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
