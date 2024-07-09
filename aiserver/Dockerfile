@@ -86,17 +86,7 @@ RUN if [ -z "${BASE_IMAGE}" ] ; then \
         dpkg -i level-zero*.deb && \
         echo "Fetched and installed level-zero from GitHub." >> /buildLog.txt; \
     fi; \
-    groupadd -f render && \
-    usermod -a -G render root && \
-    mkdir -p /dev/accel && \
-    mknod /dev/accel/accel0 c 261 0 && \
-    chown root:render /dev/accel/accel0 && \
-    chmod g+rw /dev/accel/accel0; \
-    mkdir -p /etc/udev/rules.d/; \
-    echo 'SUBSYSTEM=="accel", KERNEL=="accel*", GROUP="render", MODE="0660"' > /etc/udev/rules.d/10-intel-vpu.rules; \
-    udevadm control --reload-rules; \
-    udevadm trigger --subsystem-match=accel; \
-else echo "TARGETARCH is not amd64, skipping NPU installation. TARGETARCH is: $TARGETARCH" >> /buildLog.txt; fi
+else echo "BASE_IMAGE is not set, skipping NPU Drvier installation." >> /buildLog.txt; fi
 
 
 # Install PySDK
