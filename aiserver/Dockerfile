@@ -6,8 +6,8 @@
 
 # Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
 ARG BASE_IMAGE
-# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2023.3.0 will be used
-FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.2.0}
+# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2024.4.0 will be used
+FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.4.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
 
