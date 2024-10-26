@@ -3,10 +3,10 @@
 This is the Git repo of the official Docker image for DeGirum AI Server.
 
 The image contains [DeGirum PySDK](https://docs.degirum.com/content/pysdk/) installation with the following AI runtimes installed:
-- DeGirum N2X runtime for DeGirum ORCA&trade; devices
+- DeGirum N2X runtime for DeGirum Orca devices
 - Intel&reg; OpenVINO&trade; runtime for CPU, GPU, and NPU devices
 - Google TensorFlow Lite runtime for CPU and Coral Edge TPU devices
-- Microsoft&reg; ONNX runtime for CPU
+- ONNX runtime for CPU
 - Rockchip RKNN Runtime for RKNPU devices
 
 Once the docker container is started, DeGirum AI server is launched and accepts client connections on port **8778**
