@@ -67,3 +67,28 @@ To start the docker container built this way, execute the following command (you
     docker run -d -p 8778-8779:8778-8779 --privileged your-custom-tag
 
     
+#### Building with HailoRT Runtime Support
+
+To build the Docker image with HailoRT runtime support, you need to specify the `HAILORT_DEB` build argument. Place the HailoRT `.deb` file (e.g., `hailort.deb`) next to the Dockerfile and run the following command:
+
+```bash
+docker build . -t degirum/aiserver:latest --build-arg HAILORT_DEB=hailort.deb
+```
+
+Here, hailort.deb is the path to the HailoRT .deb file that you want installed.
+
+#### Running with Hailo Accelerator Access
+
+If you want the container to have access to the Hailo accelerator, start the container with additional arguments with the following command:
+
+```bash
+docker run -d \
+  -p 8778-8779:8778-8779 \
+  -v ~/HailoModels/:/zoo \
+  -v /dev:/dev \
+  -v /lib/firmware:/lib/firmware \
+  -v /lib/udev/rules.d:/lib/udev/rules.d \
+  -v /lib/modules:/lib/modules \
+  --device=/dev/hailo0:/dev/hailo0 \
+  --privileged \
+  degirum/aiserver:latest

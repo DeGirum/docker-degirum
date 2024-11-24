@@ -6,6 +6,8 @@
 
 # Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
 ARG BASE_IMAGE
+# HailoRT deb file name
+ARG HAILORT_DEB
 # If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2023.3.0 will be used
 FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.2.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
@@ -14,6 +16,9 @@ ARG DG_CUSTOM_WHEEL
 # After every FROM statement, all the ARGs get collected and are no longer available
 # Docker ARG variables need to be redefined in each stage of the Dockerfile if they are used after a FROM instruction.
 ARG BASE_IMAGE
+
+# HailoRT deb file name, default to dummy_hailort.deb
+ARG HAILORT_DEB=dummy_hailort.deb
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -86,8 +91,23 @@ RUN if [ -z "${BASE_IMAGE}" ] ; then \
         dpkg -i level-zero*.deb && \
         echo "Fetched and installed level-zero from GitHub." >> /buildLog.txt; \
     fi; \
-else echo "BASE_IMAGE is not set, skipping NPU Drvier installation." >> /buildLog.txt; fi
+else echo "BASE_IMAGE is set, skipping NPU Driver installation." >> /buildLog.txt; fi
 
+# HailoRT installation
+# The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
+# It defaults to dummy_hailort.deb.
+
+# Copy the HailoRT .deb file into the Docker image
+COPY ${HAILORT_DEB} /tmp/hailort.deb
+
+# HailoRT installation
+RUN if [ "${HAILORT_DEB}" != "dummy_hailort.deb" ]; then \
+        echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
+        dpkg --unpack /tmp/hailort.deb && \
+        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true; \
+    else \
+        echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
+    fi
 
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
@@ -99,5 +119,5 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     && mkdir -p /zoo \
     && rm -rf /var/lib/apt/lists/*
 
-# Run DeGirum AI server
-CMD [ "python3", "-m", "degirum.server", "--zoo", "/zoo", "--protocol", "both" ]
+# Launch Hailo service if needed, and run DeGirum AI server.
+CMD ["/bin/bash", "-c", "if [ -x /usr/local/bin/hailort_service ]; then /usr/local/bin/hailort_service & fi; python3 -m degirum.server --zoo /zoo --protocol both"]
