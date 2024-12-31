@@ -9,6 +9,9 @@ ARG BASE_IMAGE
 # HailoRT deb file name
 ARG HAILORT_DEB
 # If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2023.3.0 will be used
+# MemryX RT switch, default to OFF
+ARG MEMRYXRT_INSTALL
+
 FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.2.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
@@ -20,12 +23,15 @@ ARG BASE_IMAGE
 # HailoRT deb file name, default to dummy_hailort.deb
 ARG HAILORT_DEB=dummy_hailort.deb
 
+# MemryX RT switch, default to OFF
+ARG MEMRYXRT_INSTALL=OFF
+
 EXPOSE 8778-8779
 WORKDIR /degirum
 USER root
 
 # Common preparation steps
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
     libusb-1.0-0-dev \
     libpython3-dev \
     python3-dev \
@@ -53,15 +59,15 @@ RUN \
 # Install Coral Edge TPU drivers and runtime
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
-    && apt-get update \
-    && apt-get install -y libedgetpu-dev
+    && apt update \
+    && apt install -y libedgetpu-dev
 
 # Install RKNN Runtime. Only on aarch64
 RUN \
     if [ -z "${BASE_IMAGE}" ] ; then \
         echo "BASE_IMAGE is not set, skipping RKNN Runtime installation."; \
     else \
-        apt update && apt install -y git && \
+        apt install -y git && \
         git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
         cd ezrknn-toolkit2 && \
         git checkout 99db9e5b950ccc7e0d1ee20a16b92f7d8b6e60e6 && \
@@ -75,14 +81,14 @@ RUN \
 # Only performed on TARGETARCH=amd64
 RUN if [ -z "${BASE_IMAGE}" ] ; then \
     echo "Base Image not set, so x86_64 system, starting NPU driver installation." >> /buildLog.txt; \
-    apt update && apt install -y wget udev && \
+    apt install -y wget udev && \
     wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
     wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
     wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb; \
-    apt update && apt install -y libtbb12; \
-    dpkg -i intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt-get install -f; \
-    dpkg -i intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt-get install -f; \
-    dpkg -i intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt-get install -f; \
+    apt install -y libtbb12; \
+    dpkg -i intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f; \
+    dpkg -i intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f; \
+    dpkg -i intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f; \
     if dpkg -l | grep -q level-zero; then \
         echo "level-zero already installed." >> /buildLog.txt; \
     else \
@@ -108,6 +114,23 @@ RUN if [ "${HAILORT_DEB}" != "dummy_hailort.deb" ]; then \
     else \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
+
+# MemryX RT installation
+COPY ./libmemx.so.1.0.1 /usr/lib/x86_64-linux-gnu/libmemx.so
+COPY ./libmx_accl.so /lib/x86_64-linux-gnu/libmx_accl.so
+RUN if [ "${MEMRYXRT_INSTALL}" == "ON" ]; then \
+    echo "MemryX RT will be installed" >> /buildLog.txt && \
+    apt install -y libgomp1; \
+else \
+    echo "MemryX RT will not be installed" >> /buildLog.txt; \
+fi
+
+# wget -qO- https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc >/dev/null && \
+# echo 'deb https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
+# apt update && \
+# apt download memx-accl && \
+# dpkg --ignore-depends=memx-drivers -i "$(ls memx-accl*.deb | head -n 1)" ; \
+
 
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
