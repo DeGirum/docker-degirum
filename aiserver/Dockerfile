@@ -5,16 +5,19 @@
 #
 
 # Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
+# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2024.2.0 will be used
 ARG BASE_IMAGE
 # HailoRT deb file name
 ARG HAILORT_DEB
-# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2023.3.0 will be used
 # MemryX RT switch, default to OFF
 ARG MEMRYXRT_INSTALL
+# ONNX Runtime version, default to 1.19.0
+ARG ONNX_RUNTIME_VERSION=1.19.0
 
 FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.2.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
+ARG ONNX_RUNTIME_VERSION
 
 # After every FROM statement, all the ARGs get collected and are no longer available
 # Docker ARG variables need to be redefined in each stage of the Dockerfile if they are used after a FROM instruction.
@@ -51,10 +54,10 @@ RUN \
     else \
         arch_suff=aarch64 ; \
     fi \
-    && curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-linux-$arch_suff-1.15.1.tgz \
-    && tar -xzf onnxruntime-linux-$arch_suff-1.15.1.tgz \
-    && mv onnxruntime-linux-$arch_suff-1.15.1 /usr/local \
-    && rm onnxruntime-linux-$arch_suff-1.15.1.tgz
+    && curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_RUNTIME_VERSION}/onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz \
+    && tar -xzf onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz \
+    && mv onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION} /usr/local \
+    && rm onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz
 
 # Install Coral Edge TPU drivers and runtime
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
@@ -141,6 +144,9 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     fi \
     && mkdir -p /zoo \
     && rm -rf /var/lib/apt/lists/*
+
+# Cleanup / remove unnecessary files
+RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb
 
 # Launch Hailo service if needed, and run DeGirum AI server.
 CMD ["/bin/bash", "-c", "if [ -x /usr/local/bin/hailort_service ]; then /usr/local/bin/hailort_service & fi; python3 -m degirum.server --zoo /zoo --protocol both"]
