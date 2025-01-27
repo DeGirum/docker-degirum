@@ -48,28 +48,34 @@ RUN apt update && apt install -y --no-install-recommends \
     libglib2.0-0
 
 # Install ONNX runtime
-RUN \
+RUN echo "Installing ONNX Runtime version ${ONNX_RUNTIME_VERSION}" >> /buildLog.txt && \
     if [ -z "${BASE_IMAGE}" ] ; then \
         arch_suff=x64 ; \
+        echo "Detected architecture: x86_64" >> /buildLog.txt; \
     else \
         arch_suff=aarch64 ; \
-    fi \
-    && curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_RUNTIME_VERSION}/onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz \
-    && tar -xzf onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz \
-    && mv onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION} /usr/local \
-    && rm onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz
+        echo "Detected architecture: ARM64" >> /buildLog.txt; \
+    fi && \
+    curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_RUNTIME_VERSION}/onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz && \
+    tar -xzf onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz && \
+    mv onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION} /usr/local && \
+    rm onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz && \
+    echo "ONNX Runtime installation completed" >> /buildLog.txt
 
 # Install Coral Edge TPU drivers and runtime
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-    && echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
-    && apt update \
-    && apt install -y libedgetpu-dev
+RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+    echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
+    apt update && \
+    apt install -y libedgetpu-dev && \
+    echo "Coral Edge TPU drivers and runtime installation completed" >> /buildLog.txt
 
 # Install RKNN Runtime. Only on aarch64
-RUN \
+RUN echo "Installing RKNN Runtime if applicable" >> /buildLog.txt && \
     if [ -z "${BASE_IMAGE}" ] ; then \
-        echo "BASE_IMAGE is not set, skipping RKNN Runtime installation."; \
+        echo "BASE_IMAGE is not set, skipping RKNN Runtime installation." >> /buildLog.txt; \
     else \
+        echo "BASE_IMAGE is set, proceeding with RKNN Runtime installation." >> /buildLog.txt && \
         apt install -y git && \
         git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
         cd ezrknn-toolkit2 && \
@@ -77,30 +83,34 @@ RUN \
         cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ && \
         cd .. && \
         apt remove -y git && \
-        rm -rf ezrknn-toolkit2; \
+        rm -rf ezrknn-toolkit2 && \
+        echo "RKNN Runtime installation completed" >> /buildLog.txt; \
     fi
 
 # NPU Driver installation
 # Only performed on TARGETARCH=amd64
-RUN if [ -z "${BASE_IMAGE}" ] ; then \
-    echo "Base Image not set, so x86_64 system, starting NPU driver installation." >> /buildLog.txt; \
-    apt install -y wget udev && \
-    wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
-    wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
-    wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb; \
-    apt install -y libtbb12; \
-    dpkg -i intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f; \
-    dpkg -i intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f; \
-    dpkg -i intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f; \
-    if dpkg -l | grep -q level-zero; then \
-        echo "level-zero already installed." >> /buildLog.txt; \
+RUN echo "Starting NPU Driver installation if applicable" >> /buildLog.txt && \
+    if [ -z "${BASE_IMAGE}" ] ; then \
+        echo "Base Image not set, so x86_64 system, starting NPU driver installation." >> /buildLog.txt; \
+        apt install -y wget udev && \
+        wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
+        wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
+        wget https://github.com/intel/linux-npu-driver/releases/download/v1.5.1/intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb && \
+        apt install -y libtbb12 && \
+        dpkg -i intel-driver-compiler-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f -y && \
+        dpkg -i intel-fw-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f -y && \
+        dpkg -i intel-level-zero-npu_1.5.1.20240708-9842236399_ubuntu22.04_amd64.deb || apt install -f -y && \
+        if dpkg -l | grep -q level-zero; then \
+            echo "level-zero already installed." >> /buildLog.txt; \
+        else \
+            wget https://github.com/oneapi-src/level-zero/releases/download/v1.17.6/level-zero_1.17.6+u22.04_amd64.deb && \
+            wget https://github.com/oneapi-src/level-zero/releases/download/v1.17.6/level-zero-devel_1.17.6+u22.04_amd64.deb && \
+            dpkg -i level-zero*.deb && \
+            echo "Fetched and installed level-zero from GitHub." >> /buildLog.txt; \
+        fi; \
     else \
-        wget https://github.com/oneapi-src/level-zero/releases/download/v1.17.6/level-zero_1.17.6+u22.04_amd64.deb && \
-        wget https://github.com/oneapi-src/level-zero/releases/download/v1.17.6/level-zero-devel_1.17.6+u22.04_amd64.deb && \
-        dpkg -i level-zero*.deb && \
-        echo "Fetched and installed level-zero from GitHub." >> /buildLog.txt; \
-    fi; \
-else echo "BASE_IMAGE is set, skipping NPU Driver installation." >> /buildLog.txt; fi
+        echo "BASE_IMAGE is set, skipping NPU Driver installation." >> /buildLog.txt; \
+    fi
 
 # HailoRT installation
 # The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
@@ -110,10 +120,12 @@ else echo "BASE_IMAGE is set, skipping NPU Driver installation." >> /buildLog.tx
 COPY ${HAILORT_DEB} /tmp/hailort.deb
 
 # HailoRT installation
-RUN if [ "${HAILORT_DEB}" != "dummy_hailort.deb" ]; then \
+RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
+    if [ "${HAILORT_DEB}" != "dummy_hailort.deb" ]; then \
         echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
         dpkg --unpack /tmp/hailort.deb && \
-        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true; \
+        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
+        echo "HailoRT installation completed" >> /buildLog.txt; \
     else \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
