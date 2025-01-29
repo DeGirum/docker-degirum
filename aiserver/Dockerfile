@@ -115,21 +115,14 @@ RUN if [ "${HAILORT_DEB}" != "dummy_hailort.deb" ]; then \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
 
-# MemryX RT installation
-COPY ./libmemx.so.1.0.1 /usr/lib/x86_64-linux-gnu/libmemx.so
-COPY ./libmx_accl.so /lib/x86_64-linux-gnu/libmx_accl.so
-RUN if [ "${MEMRYXRT_INSTALL}" == "ON" ]; then \
-    echo "MemryX RT will be installed" >> /buildLog.txt && \
-    apt install -y libgomp1; \
-else \
-    echo "MemryX RT will not be installed" >> /buildLog.txt; \
-fi
 
-# wget -qO- https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc >/dev/null && \
-# echo 'deb https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
-# apt update && \
-# apt download memx-accl && \
-# dpkg --ignore-depends=memx-drivers -i "$(ls memx-accl*.deb | head -n 1)" ; \
+# MemryX RT installation
+RUN apt update && apt install -y linux-headers-generic && \
+    wget -qO- https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc >/dev/null && \
+    echo 'deb https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
+    apt update 
+
+RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers memx-accl
 
 
 # Install PySDK
