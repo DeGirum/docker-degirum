@@ -64,8 +64,8 @@ RUN echo "Installing ONNX Runtime version ${ONNX_RUNTIME_VERSION}" >> /buildLog.
 
 # Install Coral Edge TPU drivers and runtime
 RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-    echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /etc/apt/keyrings/coral-edgetpu.gpg >/dev/null && \
+    echo "deb [signed-by=/etc/apt/keyrings/coral-edgetpu.gpg] https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
     apt update && \
     apt install -y libedgetpu-dev && \
     echo "Coral Edge TPU drivers and runtime installation completed" >> /buildLog.txt
@@ -118,8 +118,8 @@ RUN echo "Starting NPU Driver installation if applicable" >> /buildLog.txt && \
 
 # MemryX RT installation
 RUN apt update && apt install -y linux-headers-generic && \
-    wget -qO- https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc >/dev/null && \
-    echo 'deb https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
+    curl https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/keyrings/memryx.asc >/dev/null && \
+    echo 'deb [signed-by=/etc/apt/keyrings/memryx.asc] https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
     apt update 
 
 RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers memx-accl
