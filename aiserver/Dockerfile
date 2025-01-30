@@ -5,7 +5,7 @@
 #
 
 # Base image: for ARM64 should be ubuntu:22.04, for x86 should be empty
-# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2024.2.0 will be used
+# If the BASE_IMAGE variable is not set or is empty, the default value openvino/ubuntu22_runtime:2024.6.0 will be used
 ARG BASE_IMAGE
 # HailoRT deb file name
 ARG HAILORT_DEB
@@ -14,7 +14,7 @@ ARG MEMRYXRT_INSTALL
 # ONNX Runtime version, default to 1.19.0
 ARG ONNX_RUNTIME_VERSION=1.19.0
 
-FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.2.0}
+FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.6.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
 ARG ONNX_RUNTIME_VERSION
@@ -87,6 +87,10 @@ RUN echo "Installing RKNN Runtime if applicable" >> /buildLog.txt && \
         echo "RKNN Runtime installation completed" >> /buildLog.txt; \
     fi
 
+# Install Akida Runtime
+RUN pip install --upgrade pip && \
+    pip install akida==2.11.0
+
 # NPU Driver installation
 # Only performed on TARGETARCH=amd64
 RUN echo "Starting NPU Driver installation if applicable" >> /buildLog.txt && \
@@ -112,6 +116,14 @@ RUN echo "Starting NPU Driver installation if applicable" >> /buildLog.txt && \
         echo "BASE_IMAGE is set, skipping NPU Driver installation." >> /buildLog.txt; \
     fi
 
+# MemryX RT installation
+RUN apt update && apt install -y linux-headers-generic && \
+    wget -qO- https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc >/dev/null && \
+    echo 'deb https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
+    apt update 
+
+RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers memx-accl
+
 # HailoRT installation
 # The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
 # It defaults to dummy_hailort.deb.
@@ -130,16 +142,6 @@ RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
 
-
-# MemryX RT installation
-RUN apt update && apt install -y linux-headers-generic && \
-    wget -qO- https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc >/dev/null && \
-    echo 'deb https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
-    apt update 
-
-RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers memx-accl
-
-
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
 RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
@@ -153,5 +155,5 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
 # Cleanup / remove unnecessary files
 RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb
 
-# Launch Hailo service if needed, and run DeGirum AI server.
-CMD ["/bin/bash", "-c", "if [ -x /usr/local/bin/hailort_service ]; then /usr/local/bin/hailort_service & fi; python3 -m degirum.server --zoo /zoo --protocol both"]
+# Run DeGirum AI server.
+CMD [ "python3", "-m", "degirum.server", "--zoo", "/zoo", "--protocol", "both" ]
