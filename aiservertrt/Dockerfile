@@ -6,7 +6,7 @@
 # This software contains source code provided by NVIDIA Corporation.
 #
 
-FROM nvcr.io/nvidia/l4t-tensorrt:r8.5.2-runtime
+FROM nvcr.io/nvidia/l4t-tensorrt:r10.3.0-runtime
 
 EXPOSE 8778-8779
 ARG DG_CUSTOM_WHEEL
