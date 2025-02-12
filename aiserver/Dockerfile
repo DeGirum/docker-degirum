@@ -9,8 +9,6 @@
 ARG BASE_IMAGE
 # HailoRT deb file name
 ARG HAILORT_DEB
-# MemryX RT switch, default to OFF
-ARG MEMRYXRT_INSTALL
 # ONNX Runtime version, default to 1.19.0
 ARG ONNX_RUNTIME_VERSION=1.19.0
 
@@ -25,9 +23,6 @@ ARG BASE_IMAGE
 
 # HailoRT deb file name, default to dummy_hailort.deb
 ARG HAILORT_DEB=dummy_hailort.deb
-
-# MemryX RT switch, default to OFF
-ARG MEMRYXRT_INSTALL=OFF
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -90,6 +85,13 @@ RUN echo "Installing RKNN Runtime if applicable" >> /buildLog.txt && \
 # Install Akida Runtime
 RUN pip install --upgrade pip && \
     pip install akida==2.11.0
+
+# Add Akida runtime to the LD_LIBRARY_PATH
+RUN export AKIDA_PATH=$(python3 -c "import akida, os; print(os.path.dirname(akida.__file__))") && \
+    echo $AKIDA_PATH > /etc/ld.so.conf.d/akida.conf && \
+    ldconfig && \
+    export LD_LIBRARY_PATH=$AKIDA_PATH:$LD_LIBRARY_PATH && \
+    echo "Akida Runtime added to LD_LIBRARY_PATH: $LD_LIBRARY_PATH" >> /buildLog.txt
 
 # NPU Driver installation
 # Only performed on TARGETARCH=amd64
