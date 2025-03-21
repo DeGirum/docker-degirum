@@ -124,7 +124,7 @@ RUN apt update && apt install -y linux-headers-generic && \
     echo 'deb [signed-by=/etc/apt/keyrings/memryx.asc] https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
     apt update 
 
-RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers memx-accl
+RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.1.5-3.1 memx-accl=1.1.3-1.1
 
 # HailoRT installation
 # The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
