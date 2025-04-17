@@ -9,6 +9,8 @@
 ARG BASE_IMAGE
 # HailoRT deb file name
 ARG HAILORT_DEB
+# DXRT deb file name
+ARG LIBDXRT_DEB
 # ONNX Runtime version, default to 1.19.0
 ARG ONNX_RUNTIME_VERSION=1.19.0
 
@@ -21,8 +23,12 @@ ARG ONNX_RUNTIME_VERSION
 # Docker ARG variables need to be redefined in each stage of the Dockerfile if they are used after a FROM instruction.
 ARG BASE_IMAGE
 
-# HailoRT deb file name, default to dummy_hailort.deb
-ARG HAILORT_DEB=dummy_hailort.deb
+# HailoRT deb file name, default to dummy.deb
+ARG HAILORT_DEB=dummy.deb
+
+# DXRT deb file name, default to dummy.deb
+ARG LIBDXRT_DEB=dummy.deb
+
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -128,14 +134,14 @@ RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.1.5-3.1
 
 # HailoRT installation
 # The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
-# It defaults to dummy_hailort.deb.
+# It defaults to dummy.deb.
 
 # Copy the HailoRT .deb file into the Docker image
 COPY ${HAILORT_DEB} /tmp/hailort.deb
 
 # HailoRT installation
 RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
-    if [ "${HAILORT_DEB}" != "dummy_hailort.deb" ]; then \
+    if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
         echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
         dpkg --unpack /tmp/hailort.deb && \
         DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
@@ -143,6 +149,27 @@ RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
     else \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
+
+
+# DXRT installation
+# The deb file for DXRT is passed as an optional build argument: LIBDXRT_DEB
+# It defaults to dummy.deb.
+
+# Copy the DXRT .deb file into the Docker image
+COPY ${LIBDXRT_DEB} /tmp/libdxrt.deb
+
+# DXRT installation
+RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
+    if [ "${LIBDXRT_DEB}" != "dummy.deb" ]; then \
+        echo "DXRT deb specified, proceeding with installation" >> /buildLog.txt; \
+        apt-get update && apt-get install -y unzip git cmake ninja-build python3-dev python3-pybind11 && \
+        dpkg --unpack /tmp/libdxrt.deb && \
+        DEBIAN_FRONTEND=noninteractive dpkg --configure -a --debug=2 || true && \
+        echo "DXRT installation completed" >> /buildLog.txt; \
+    else \
+        echo "DXRT deb not specified, skipping installation" >> /buildLog.txt; \
+    fi
+
 
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
