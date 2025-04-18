@@ -132,24 +132,6 @@ RUN apt update && apt install -y linux-headers-generic && \
 
 RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.1.5-3.1 memx-accl=1.1.3-1.1
 
-# HailoRT installation
-# The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
-# It defaults to dummy.deb.
-
-# Copy the HailoRT .deb file into the Docker image
-COPY ${HAILORT_DEB} /tmp/hailort.deb
-
-# HailoRT installation
-RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
-    if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
-        echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
-        dpkg --unpack /tmp/hailort.deb && \
-        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
-        echo "HailoRT installation completed" >> /buildLog.txt; \
-    else \
-        echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
-    fi
-
 
 # DXRT installation
 # The deb file for DXRT is passed as an optional build argument: LIBDXRT_DEB
@@ -168,6 +150,26 @@ RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
         echo "DXRT installation completed" >> /buildLog.txt; \
     else \
         echo "DXRT deb not specified, skipping installation" >> /buildLog.txt; \
+    fi
+
+
+# HailoRT installation
+# The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
+# It defaults to dummy.deb.
+
+# Copy the HailoRT .deb file into the Docker image
+COPY ${HAILORT_DEB} /tmp/hailort.deb
+
+# HailoRT installation
+RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
+    if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
+        echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
+        ln -s /bin/true /usr/local/bin/systemctl && \
+        dpkg --unpack /tmp/hailort.deb && \
+        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
+        echo "HailoRT installation completed" >> /buildLog.txt; \
+    else \
+        echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
 
 
