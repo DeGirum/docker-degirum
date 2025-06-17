@@ -30,7 +30,8 @@ ARG HAILORT_DEB=dummy.deb
 ARG LIBDXRT_DEB=dummy.deb
 
 # Axelera environment variables
-ARG AXELERA_VERSION 
+ARG AXELERA_VERSION
+ARG METIS_VERSION
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -191,7 +192,8 @@ RUN echo "Starting Axelera installation if applicable" >> /buildLog.txt && \
         apt install -y \
             axelera-runtime-$AXELERA_VERSION \
             axelera-device-$AXELERA_VERSION \
-            axelera-riscv-gnu-newlib-toolchain-409b951ba662-7 && \
+            axelera-riscv-gnu-newlib-toolchain-409b951ba662-7 \
+            metis-dkms=$METIS_VERSION && \
         echo "Axelera installation completed" >> /buildLog.txt; \
     else \
         echo "Axelera version not specified, skipping installation" >> /buildLog.txt; \
@@ -218,7 +220,16 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     && rm -rf /var/lib/apt/lists/*
 
 # Cleanup / remove unnecessary files
-RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb
+RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb && \
+    apt-get purge -y gcc linux-headers-* && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* \
+           /usr/src/linux-headers-* \
+           /usr/share/libdxrt/src \
+           /root/.cache/pip && \
+    (pip cache purge || true)
+
 
 # Run DeGirum AI server.
 CMD [ "python3", "-m", "degirum.server", "--zoo", "/zoo", "--protocol", "both" ]
