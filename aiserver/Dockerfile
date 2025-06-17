@@ -216,19 +216,13 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     else \
         pip install ${DG_CUSTOM_WHEEL} ; \
     fi \
-    && mkdir -p /zoo \
-    && rm -rf /var/lib/apt/lists/*
-
+    && mkdir -p /zoo
+    
 # Cleanup / remove unnecessary files
 RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb && \
-    apt-get purge -y gcc linux-headers-* && \
-    apt-get autoremove -y && \
-    apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
-           /usr/src/linux-headers-* \
-           /usr/share/libdxrt/src \
-           /root/.cache/pip && \
-    (pip cache purge || true)
+            /usr/share/libdxrt/src && \
+    pip cache purge
 
 
 # Run DeGirum AI server.
