@@ -162,11 +162,12 @@ RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
 # Copy the HailoRT .deb file into the Docker image
 COPY ${HAILORT_DEB} /tmp/hailort.deb
 
+
 # HailoRT installation
 RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
     if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
+        touch /.dockerenv && \
         echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
-        ln -s /bin/true /usr/local/bin/systemctl && \
         dpkg --unpack /tmp/hailort.deb && \
         DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
         echo "HailoRT installation completed" >> /buildLog.txt; \
