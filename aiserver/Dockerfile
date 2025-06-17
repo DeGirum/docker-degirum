@@ -146,7 +146,7 @@ COPY ${LIBDXRT_DEB} /tmp/libdxrt.deb
 RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
     if [ "${LIBDXRT_DEB}" != "dummy.deb" ]; then \
         echo "DXRT deb specified, proceeding with installation" >> /buildLog.txt; \
-        apt-get update && apt-get install -y unzip git cmake ninja-build python3-dev python3-pybind11 && \
+        apt-get update && apt-get install -y unzip git cmake ninja-build python3-dev python3-pybind11 wget && \
         dpkg --unpack /tmp/libdxrt.deb && \
         DEBIAN_FRONTEND=noninteractive dpkg --configure -a --debug=2 || true && \
         echo "DXRT installation completed" >> /buildLog.txt; \
