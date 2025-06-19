@@ -30,7 +30,8 @@ ARG HAILORT_DEB=dummy.deb
 ARG LIBDXRT_DEB=dummy.deb
 
 # Axelera environment variables
-ARG AXELERA_VERSION 
+ARG AXELERA_VERSION
+ARG METIS_VERSION
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -146,7 +147,7 @@ COPY ${LIBDXRT_DEB} /tmp/libdxrt.deb
 RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
     if [ "${LIBDXRT_DEB}" != "dummy.deb" ]; then \
         echo "DXRT deb specified, proceeding with installation" >> /buildLog.txt; \
-        apt-get update && apt-get install -y unzip git cmake ninja-build python3-dev python3-pybind11 && \
+        apt-get update && apt-get install -y unzip git cmake ninja-build python3-dev python3-pybind11 wget && \
         dpkg --unpack /tmp/libdxrt.deb && \
         DEBIAN_FRONTEND=noninteractive dpkg --configure -a --debug=2 || true && \
         echo "DXRT installation completed" >> /buildLog.txt; \
@@ -162,11 +163,12 @@ RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
 # Copy the HailoRT .deb file into the Docker image
 COPY ${HAILORT_DEB} /tmp/hailort.deb
 
+
 # HailoRT installation
 RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
     if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
+        touch /.dockerenv && \
         echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
-        ln -s /bin/true /usr/local/bin/systemctl && \
         dpkg --unpack /tmp/hailort.deb && \
         DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
         echo "HailoRT installation completed" >> /buildLog.txt; \
@@ -190,7 +192,8 @@ RUN echo "Starting Axelera installation if applicable" >> /buildLog.txt && \
         apt install -y \
             axelera-runtime-$AXELERA_VERSION \
             axelera-device-$AXELERA_VERSION \
-            axelera-riscv-gnu-newlib-toolchain-409b951ba662-7 && \
+            axelera-riscv-gnu-newlib-toolchain-409b951ba662-7 \
+            metis-dkms=$METIS_VERSION && \
         echo "Axelera installation completed" >> /buildLog.txt; \
     else \
         echo "Axelera version not specified, skipping installation" >> /buildLog.txt; \
@@ -213,11 +216,14 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     else \
         pip install ${DG_CUSTOM_WHEEL} ; \
     fi \
-    && mkdir -p /zoo \
-    && rm -rf /var/lib/apt/lists/*
-
+    && mkdir -p /zoo
+    
 # Cleanup / remove unnecessary files
-RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb
+RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb && \
+    rm -rf /var/lib/apt/lists/* \
+            /usr/share/libdxrt/src && \
+    pip cache purge
+
 
 # Run DeGirum AI server.
 CMD [ "python3", "-m", "degirum.server", "--zoo", "/zoo", "--protocol", "both" ]
