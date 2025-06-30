@@ -47,21 +47,6 @@ RUN apt update && apt install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0
 
-# Install ONNX runtime
-RUN echo "Installing ONNX Runtime version ${ONNX_RUNTIME_VERSION}" >> /buildLog.txt && \
-    if [ -z "${BASE_IMAGE}" ] ; then \
-        arch_suff=x64 ; \
-        echo "Detected architecture: x86_64" >> /buildLog.txt; \
-    else \
-        arch_suff=aarch64 ; \
-        echo "Detected architecture: ARM64" >> /buildLog.txt; \
-    fi && \
-    curl -L -O https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_RUNTIME_VERSION}/onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz && \
-    tar -xzf onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz && \
-    mv onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION} /usr/local && \
-    rm onnxruntime-linux-$arch_suff-${ONNX_RUNTIME_VERSION}.tgz && \
-    echo "ONNX Runtime installation completed" >> /buildLog.txt
-
 # Install Coral Edge TPU drivers and runtime
 RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /etc/apt/keyrings/coral-edgetpu.gpg >/dev/null && \
