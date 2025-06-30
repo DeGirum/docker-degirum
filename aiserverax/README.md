@@ -32,7 +32,7 @@ can still be served.
 
 The `--privileged` parameter is required so that the PySDK server can have write access to `/sys/bus/pci` directories.
 
-You connect to the AI server by providing the IP address or the host name of the Docker host computer when connecting the the model zoo:
+You connect to the AI server by providing the IP address or the host name of the Docker host computer when connecting the model zoo:
 
     import degirum as dg
     zoo = dg.connect(<docker host or IP> [, <cloud zoo URL>, <cloud access token>])
@@ -52,7 +52,7 @@ If you want to include the model zoo directory directly into the Docker image, c
 
 Here `/my/model/zoo/dir` is the local path on the Docker host computer to the model zoo directory you want to embed into the Docker image.
 
-Then build the Docker image the by executing the following command having that directory which contains the `Dockerfile` as the current working directory:
+Then build the Docker image by executing the following command having that directory which contains the `Dockerfile` as the current working directory:
     
     docker build . -t your-custom-tag
     

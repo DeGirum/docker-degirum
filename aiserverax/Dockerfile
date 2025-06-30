@@ -37,7 +37,7 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     fi \
     && mkdir -p /zoo
 
-# Exctract Axelera version from PySDK installation
+# Extract Axelera version from PySDK installation
 # This is all done in a single RUN step to preserve the value of AXELERA_VERSION
 RUN echo "Starting Axelera installation" >> /buildLog.txt && \
     SITE_PACKAGES=$(python3 -c "import sysconfig; print(sysconfig.get_path('purelib'))") && \
