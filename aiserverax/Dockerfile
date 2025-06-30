@@ -63,13 +63,14 @@ RUN echo "Starting Axelera installation" >> /buildLog.txt && \
             axelera-riscv-gnu-newlib-toolchain-409b951ba662-7 \
             pciutils \
             kmod && \
+        # Write runtime library path to ldconfig's configuration directory instead of LD_LIBRARY_PATH
+        echo "/opt/axelera/runtime-$AXELERA_VERSION-1/lib" > /etc/ld.so.conf.d/axelera.conf && \
+        ldconfig && \
         echo "Axelera installation completed" >> /buildLog.txt; \
     else \
         echo "Axelera version not found, skipping installation" >> /buildLog.txt; \
-    fi && \
-    # Write runtime library path to ldconfig's configuration directory instead of LD_LIBRARY_PATH
-    echo "/opt/axelera/runtime-$AXELERA_VERSION-1/lib" > /etc/ld.so.conf.d/axelera.conf && \
-    ldconfig
+    fi
+    
 
 # Cleanup / remove unnecessary files
 RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb && \
