@@ -29,10 +29,6 @@ ARG HAILORT_DEB=dummy.deb
 # DXRT deb file name, default to dummy.deb
 ARG LIBDXRT_DEB=dummy.deb
 
-# Axelera environment variables
-ARG AXELERA_VERSION
-ARG METIS_VERSION
-
 EXPOSE 8778-8779
 WORKDIR /degirum
 USER root
@@ -160,38 +156,6 @@ RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
     else \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
-
-# Axelera installation
-#RUN echo "Starting Axelera installation if applicable" >> /buildLog.txt && \
-#    if [ -n "$AXELERA_VERSION" ]; then \
-#        echo "Axelera version $AXELERA_VERSION specified, proceeding with installation" >> /buildLog.txt; \
-#        GPG_URL="https://software.axelera.ai/artifactory/api/security/keypair/axelera/public" && \
-#        GPG_KEY_PATH="/etc/apt/keyrings/axelera.gpg" && \
-#        REPO_LIST_PATH="/etc/apt/sources.list.d/axelera.list" && \
-#        REPO_SOURCE="https://software.axelera.ai/artifactory/axelera-apt-source/ stable main" && \
-#        mkdir -p "$(dirname "$GPG_KEY_PATH")" && \
-#        curl -fsSL "$GPG_URL" | gpg --dearmor | tee "$GPG_KEY_PATH" > /dev/null && \
-#        chmod 644 "$GPG_KEY_PATH" && \
-#        echo "deb [signed-by=$GPG_KEY_PATH] $REPO_SOURCE" | tee "$REPO_LIST_PATH" > /dev/null && \
-#        apt update && \
-#        apt install -y \
-#            axelera-runtime-$AXELERA_VERSION \
-#            axelera-device-$AXELERA_VERSION \
-#            axelera-riscv-gnu-newlib-toolchain-409b951ba662-7 \
-#            metis-dkms=$METIS_VERSION && \
-#        echo "Axelera installation completed" >> /buildLog.txt; \
-#    else \
-#        echo "Axelera version not specified, skipping installation" >> /buildLog.txt; \
-#    fi
-
-# Set Axelera environment variables
-#ENV AXELERA_RUNTIME_DIR="/opt/axelera/runtime-${AXELERA_VERSION}-1"
-#ENV AXELERA_DEVICE_DIR="/opt/axelera/device-${AXELERA_VERSION}-1/omega"
-#ENV AXELERA_RISCV_TOOLCHAIN_DIR="/opt/axelera/riscv-gnu-newlib-toolchain-409b951ba662-7"
-#ENV AIPU_FIRMWARE_OMEGA="/opt/axelera/device-${AXELERA_VERSION}-1/omega/bin/start_axelera_runtime.elf"
-#ENV AIPU_RUNTIME_STAGE0_OMEGA="/opt/axelera/device-${AXELERA_VERSION}-1/omega/bin/start_axelera_runtime_stage0.bin"
-#ENV LD_LIBRARY_PATH="/opt/axelera/runtime-${AXELERA_VERSION}-1/lib:$LD_LIBRARY_PATH"
-#ENV PATH="/opt/axelera/runtime-${AXELERA_VERSION}-1/bin:/opt/axelera/riscv-gnu-newlib-toolchain-409b951ba662-7/bin:$PATH"
 
 
 # Install PySDK
