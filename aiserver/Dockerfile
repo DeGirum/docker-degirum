@@ -114,7 +114,7 @@ RUN apt update && apt install -y linux-headers-generic && \
     echo 'deb [signed-by=/etc/apt/keyrings/memryx.asc] https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
     apt update 
 
-RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.2.1-3.1 memx-accl=1.2.3-1
+RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.2.1-3.1 memx-accl=1.2.3-1 mxa-manager=1.2.1-3
 
 
 # DXRT installation
