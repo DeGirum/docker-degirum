@@ -115,6 +115,7 @@ RUN apt update && apt install -y linux-headers-generic && \
     apt update 
 
 RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.2.1-3.1 memx-accl=1.2.3-1
+COPY mxa_manager /usr/bin/mxa_manager
 
 
 # DXRT installation
