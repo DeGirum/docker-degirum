@@ -11,13 +11,11 @@ ARG BASE_IMAGE
 ARG HAILORT_DEB
 # DXRT deb file name
 ARG LIBDXRT_DEB
-# ONNX Runtime version, default to 1.19.0
-ARG ONNX_RUNTIME_VERSION=1.19.0
+# ONNX Runtime installation now happens during DeepX install step.
 
 FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.6.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
-ARG ONNX_RUNTIME_VERSION
 
 # After every FROM statement, all the ARGs get collected and are no longer available
 # Docker ARG variables need to be redefined in each stage of the Dockerfile if they are used after a FROM instruction.
@@ -45,7 +43,8 @@ RUN apt update && apt install -y --no-install-recommends \
     gpg-agent \
     gpg \
     libgl1 \
-    libglib2.0-0
+    libglib2.0-0 \
+    git
 
 # Install Coral Edge TPU drivers and runtime
 RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
@@ -55,26 +54,21 @@ RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
     apt install -y libedgetpu-dev && \
     echo "Coral Edge TPU drivers and runtime installation completed" >> /buildLog.txt
 
-# Install RKNN Runtime. Only on aarch64
-RUN echo "Installing RKNN Runtime if applicable" >> /buildLog.txt && \
-    if [ -z "${BASE_IMAGE}" ] ; then \
-        echo "BASE_IMAGE is not set, skipping RKNN Runtime installation." >> /buildLog.txt; \
+# Install PySDK
+COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
+RUN pip install --upgrade pip
+RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
+        pip install degirum ; \
     else \
-        echo "BASE_IMAGE is set, proceeding with RKNN Runtime installation." >> /buildLog.txt && \
-        apt install -y git && \
-        git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
-        cd ezrknn-toolkit2 && \
-        git checkout a8dd54d41e92c95b4f95780ed0534362b2c98b92 && \
-        cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ && \
-        cd .. && \
-        apt remove -y git && \
-        rm -rf ezrknn-toolkit2 && \
-        echo "RKNN Runtime installation completed" >> /buildLog.txt; \
-    fi
+        pip install ${DG_CUSTOM_WHEEL} ; \
+    fi \
+    && mkdir -p /zoo
+
+# Install RKNN Runtime
+RUN degirum install-runtime rknn 2.3.0
 
 # Install Akida Runtime
-RUN pip install --upgrade pip && \
-    pip install akida==2.11.0
+RUN degirum install-runtime akida 2.11.0
 
 # Add Akida runtime to the LD_LIBRARY_PATH
 RUN export AKIDA_PATH=$(python3 -c "import akida, os; print(os.path.dirname(akida.__file__))") && \
@@ -109,11 +103,13 @@ RUN echo "Starting NPU Driver installation if applicable" >> /buildLog.txt && \
     fi
 
 # MemryX RT installation
+# RUN degirum install-runtime memryx 1.2.3-1 
+# Does not work within Docker environment as it tries to install headers for the host kernel and write into /sys
+
 RUN apt update && apt install -y linux-headers-generic && \
     curl https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/keyrings/memryx.asc >/dev/null && \
     echo 'deb [signed-by=/etc/apt/keyrings/memryx.asc] https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
     apt update 
-
 RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=1.2.1-3.1 memx-accl=1.2.3-1 mxa-manager=1.2.1-3
 
 
@@ -156,23 +152,12 @@ RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
     else \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
     fi
-
-
-# Install PySDK
-COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
-RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
-        pip install degirum ; \
-    else \
-        pip install ${DG_CUSTOM_WHEEL} ; \
-    fi \
-    && mkdir -p /zoo
     
 # Cleanup / remove unnecessary files
 RUN rm -f /degirum/Dockerfile /degirum/README.md /degirum/*.deb && \
     rm -rf /var/lib/apt/lists/* \
             /usr/share/libdxrt/src && \
     pip cache purge
-
 
 # Run DeGirum AI server.
 CMD [ "python3", "-m", "degirum.server", "--zoo", "/zoo", "--protocol", "both" ]
