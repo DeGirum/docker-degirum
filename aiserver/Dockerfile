@@ -11,6 +11,9 @@ ARG BASE_IMAGE
 ARG HAILORT_DEB
 # DXRT deb file name
 ARG LIBDXRT_DEB
+# EdgeCortix deb file name
+ARG EDGECORTIX_DEB
+
 # ONNX Runtime version, default to 1.19.0
 ARG ONNX_RUNTIME_VERSION=1.19.0
 
@@ -28,6 +31,9 @@ ARG HAILORT_DEB=dummy.deb
 
 # DXRT deb file name, default to dummy.deb
 ARG LIBDXRT_DEB=dummy.deb
+
+# EdgeCortix deb file name, default to dummy.deb
+ARG EDGECORTIX_DEB=dummy.deb
 
 EXPOSE 8778-8779
 WORKDIR /degirum
@@ -139,11 +145,10 @@ RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
 
 # HailoRT installation
 # The deb file for HailoRT is passed as an optional build argument: HAILORT_DEB
-# It defaults to dummy.deb.
+# It defaults to dummy.deb.MERA_BLOCKS_YOLOV8_CONF_THRESHOLD
 
 # Copy the HailoRT .deb file into the Docker image
 COPY ${HAILORT_DEB} /tmp/hailort.deb
-
 
 # HailoRT installation
 RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
@@ -155,6 +160,29 @@ RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
         echo "HailoRT installation completed" >> /buildLog.txt; \
     else \
         echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
+    fi
+
+# EdgeCortix installation
+# The deb file for Sakura runtime is passed as an optional build argument: EDGECORTIX_DEB
+# It defaults to dummy.deb.
+
+RUN mkdir /opt/sakura2
+COPY ec_daemon /opt/sakura2/
+COPY ${EDGECORTIX_DEB} /tmp/edgecortix.deb
+# EdgeCortix MERA runtime installation
+RUN echo "Starting EdgeCortix SAKURA-2 installation if applicable" >> /buildLog.txt && \
+    if [ "${EDGECORTIX_DEB}" != "dummy.deb" ]; then \
+        echo "EdgeCortix SAKURA-2 deb specified, proceeding with installation" >> /buildLog.txt; \
+        apt-get update && apt-get install -y \
+        gcc-12 libstdc++6 ca-certificates curl gnupg software-properties-common \
+        build-essential linux-headers-generic make pciutils flex bison llvm-14 libgoogle-glog0v5 libssl-dev && \
+        add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+        apt-get install -y --only-upgrade libstdc++6 && \
+        DEBIAN_FRONTEND=noninteractive && \
+        apt-get update && apt-get install -y /tmp/edgecortix.deb && \
+        echo "EdgeCortix SAKURA-2 installation completed" >> /buildLog.txt; \
+    else \
+        echo "EdgeCortix SAKURA-2 deb not specified, skipping installation" >> /buildLog.txt; \
     fi
 
 
