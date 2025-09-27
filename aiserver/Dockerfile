@@ -70,7 +70,7 @@ RUN echo "Installing RKNN Runtime if applicable" >> /buildLog.txt && \
         apt install -y git && \
         git clone https://github.com/Pelochus/ezrknn-toolkit2 && \
         cd ezrknn-toolkit2 && \
-        git checkout 99db9e5b950ccc7e0d1ee20a16b92f7d8b6e60e6 && \
+        git checkout a8dd54d41e92c95b4f95780ed0534362b2c98b92 && \
         cp ./rknpu2/runtime/Linux/librknn_api/aarch64/librknnrt.so /usr/lib/ && \
         cd .. && \
         apt remove -y git && \
