@@ -149,23 +149,11 @@ RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
 # Copy the HailoRT .deb file into the Docker image
 COPY ${HAILORT_DEB} /tmp/hailort.deb
 
-
-# HailoRT installation
-RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
-    if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
-        touch /.dockerenv && \
-        echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
-        dpkg --unpack /tmp/hailort.deb && \
-        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
-        echo "HailoRT installation completed" >> /buildLog.txt; \
-    else \
-        echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
-    fi
-
 # EdgeCortix installation
 # The deb file for Sakura runtime is passed as an optional build argument: EDGECORTIX_DEB
 # It defaults to dummy.deb.
 
+# Copy the EdgeCortix .deb file and ec_daemon into the Docker image
 RUN mkdir /opt/sakura2
 COPY ec_daemon /opt/sakura2/
 COPY ${EDGECORTIX_DEB} /tmp/edgecortix.deb
@@ -185,6 +173,17 @@ RUN echo "Starting EdgeCortix SAKURA-2 installation if applicable" >> /buildLog.
         echo "EdgeCortix SAKURA-2 deb not specified, skipping installation" >> /buildLog.txt; \
     fi
 
+# HailoRT installation
+RUN echo "Starting HailoRT installation if applicable" >> /buildLog.txt && \
+    if [ "${HAILORT_DEB}" != "dummy.deb" ]; then \
+        touch /.dockerenv && \
+        echo "HailoRT deb specified, proceeding with installation" >> /buildLog.txt; \
+        dpkg --unpack /tmp/hailort.deb && \
+        DEBIAN_FRONTEND=noninteractive dpkg --configure -a || true && \
+        echo "HailoRT installation completed" >> /buildLog.txt; \
+    else \
+        echo "HailoRT deb not specified, skipping installation" >> /buildLog.txt; \
+    fi
 
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
