@@ -37,13 +37,12 @@ RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
     fi \
     && mkdir -p /zoo
 
-# Extract Axelera version from PySDK installation
-# This is all done in a single RUN step to preserve the value of AXELERA_VERSION
+# Install Axelera runtime using degirum install-runtime command and required system packages
 RUN echo "Starting Axelera installation" >> /buildLog.txt && \
     degirum install-runtime axelera && \
     # Metis driver installation skipped in docker image
     # Pciutils and kmod are required if metis driver is not installed
-    apt install -y pciutils kmod && \
+    apt update && apt install -y pciutils kmod && \
     echo "Axelera installation completed" >> /buildLog.txt
     
 
