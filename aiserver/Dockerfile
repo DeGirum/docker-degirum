@@ -114,12 +114,13 @@ RUN echo "Starting NPU Driver installation if applicable" >> /buildLog.txt && \
     fi
 
 # MemryX RT installation
-RUN apt update && apt install -y linux-headers-generic && \
+RUN mkdir /run/mxa_manager && \
+    apt update && apt install -y linux-headers-generic && \
     curl https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/keyrings/memryx.asc >/dev/null && \
     echo 'deb [signed-by=/etc/apt/keyrings/memryx.asc] https://developer.memryx.com/deb stable main' | tee /etc/apt/sources.list.d/memryx.list >/dev/null && \
     apt update 
 
-RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=2.0.5-4.1 memx-accl=2.0.5-4 mxa-manager=2.0.5-4
+RUN --mount=type=tmpfs,target=/sys/bus/pci apt install -y memx-drivers=2.2.1-3 memx-accl=2.2.1-1
 
 
 # DXRT installation
