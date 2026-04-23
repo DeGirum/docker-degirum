@@ -54,6 +54,7 @@ RUN apt update && apt install -y --no-install-recommends \
 
 # Install Coral Edge TPU drivers and runtime
 RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
+    mkdir -p /etc/apt/keyrings && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /etc/apt/keyrings/coral-edgetpu.gpg >/dev/null && \
     echo "deb [signed-by=/etc/apt/keyrings/coral-edgetpu.gpg] https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
     apt update && \
@@ -135,7 +136,7 @@ RUN echo "Starting DXRT installation if applicable" >> /buildLog.txt && \
     if [ "${LIBDXRT_DEB}" != "dummy.deb" ]; then \
         echo "DXRT deb specified, proceeding with installation" >> /buildLog.txt; \
         apt-get update && apt-get install -y unzip git cmake ninja-build python3-dev python3-pybind11 wget \
-        libncurses-dev && \ 
+        libncurses-dev && \
         dpkg --unpack /tmp/libdxrt.deb && \
         DEBIAN_FRONTEND=noninteractive dpkg --configure -a --debug=2 || true && \
         echo "DXRT installation completed" >> /buildLog.txt; \
