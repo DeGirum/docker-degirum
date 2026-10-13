@@ -52,15 +52,6 @@ RUN apt update && apt install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0
 
-# Install Coral Edge TPU drivers and runtime
-RUN echo "Installing Coral Edge TPU drivers and runtime" >> /buildLog.txt && \
-    mkdir -p /etc/apt/keyrings && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /etc/apt/keyrings/coral-edgetpu.gpg >/dev/null && \
-    echo "deb [signed-by=/etc/apt/keyrings/coral-edgetpu.gpg] https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
-    apt update && \
-    apt install -y libedgetpu-dev && \
-    echo "Coral Edge TPU drivers and runtime installation completed" >> /buildLog.txt
-
 # Install RKNN Runtime. Only on aarch64
 RUN echo "Installing RKNN Runtime if applicable" >> /buildLog.txt && \
     if [ -z "${BASE_IMAGE}" ] ; then \
