@@ -4,7 +4,7 @@
 # Copyright DeGirum Corp 2026
 #
 
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 ARG DG_CUSTOM_WHEEL
 
@@ -18,6 +18,7 @@ RUN apt update && apt install -y --no-install-recommends \
     libpython3-dev \
     python3-dev \
     python3-pip \
+    python3-numpy \
     ca-certificates \
     curl \
     gpg-agent \
@@ -31,8 +32,7 @@ RUN apt update && apt install -y --no-install-recommends \
 
 # Install PySDK
 COPY Dockerfile ${DG_CUSTOM_WHEEL} ./
-RUN rm -f /usr/lib/python3.12/EXTERNALLY-MANAGED && \
-    if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
+RUN if [ -z "${DG_CUSTOM_WHEEL}" ] ; then \
         pip install degirum ; \
     else \
         pip install ${DG_CUSTOM_WHEEL} ; \
