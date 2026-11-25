@@ -16,7 +16,7 @@ ARG EDGECORTIX_DEB
 # ONNX Runtime version, default to 1.19.0
 ARG ONNX_RUNTIME_VERSION=1.19.0
 
-FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2024.6.0}
+FROM ${BASE_IMAGE:-openvino/ubuntu22_runtime:2025.3.0}
 # PySDK wheel file name: either not defined or Python 3.10 PySDK wheel
 ARG DG_CUSTOM_WHEEL
 ARG ONNX_RUNTIME_VERSION
